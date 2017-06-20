@@ -58,7 +58,7 @@
 <script>
     import headTop from 'src/components/header/head'
     import {mapState, mapMutations} from 'vuex'
-    import {getAddress} from 'src/service/getData'
+    import {getAddress, getAddressList} from 'src/service/getData'
     import alertTip from 'src/components/common/alertTip'
     import BScroll from 'better-scroll'
 
@@ -107,7 +107,7 @@
                 this.deliverdisable = [];
 
                 if (this.userInfo && this.userInfo.user_id) {
-                    this.addressList = await getAddress(this.id, this.sig);
+                    this.addressList = await getAddressList(this.userInfo.user_id);
                     //将当前所有地址访问有效无效两种
                     this.addressList.forEach(item => {
                         if (item.is_deliverable) {

@@ -3,8 +3,8 @@
     	<head-top signin-up='msite'>
     		<router-link :to="'/search/' + geohash" class="link_search" slot="search">
 	    		<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1">
-	    			<circle cx="9" cy="9" r="8" stroke="rgb(255,255,255)" stroke-width="2" fill="none"/>
-	    			<line x1="15" y1="15" x2="20" y2="20" style="stroke:rgb(255,255,255);stroke-width:2"/>
+	    			<circle cx="8" cy="8" r="7" stroke="rgb(255,255,255)" stroke-width="1" fill="none"/>
+	    			<line x1="14" y1="14" x2="20" y2="20" style="stroke:rgb(255,255,255);stroke-width:2"/>
 	    		</svg>
     		</router-link>
 			<router-link to="/home" slot="msite-title" class="msite_title">
@@ -12,25 +12,20 @@
 			</router-link>
     	</head-top>
     	<nav class="msite_nav">
-    		<div class="swiper-container">
+    		<div class="swiper-container" v-if="foodTypes.length">
 		        <div class="swiper-wrapper">
 		            <div class="swiper-slide food_types_container" v-for="(item, index) in foodTypes" :key="index">
-	            		<router-link :to="{path: '/food', query: {geohash, title: foodItem.title, restaurant_category_id: getCategoryId(foodItem.link)}}" v-for="foodItem in item" :key="foodItem.id" class="link_to_food" v-if="foodItem.title !== '预订早餐'">
+	            		<router-link :to="{path: '/food', query: {geohash, title: foodItem.title, restaurant_category_id: getCategoryId(foodItem.link)}}" v-for="foodItem in item" :key="foodItem.id" class="link_to_food">
 	            			<figure>
 	            				<img :src="imgBaseUrl + foodItem.image_url">
 	            				<figcaption>{{foodItem.title}}</figcaption>
 	            			</figure>
 	            		</router-link>
-	            		<a href="https://zaocan.ele.me/" class="link_to_food" v-else>
-	            			<figure>
-	            				<img :src="imgBaseUrl + foodItem.image_url">
-	            				<figcaption>{{foodItem.title}}</figcaption>
-	            			</figure>
-	            		</a>	
 		            </div>
 		        </div>
 		        <div class="swiper-pagination"></div>
 		    </div>
+		    <img src="../../images/fl.svg" class="fl_back animation_opactiy" v-else>
     	</nav>
     	<div class="shop_list_container">
 	    	<header class="shop_header">
@@ -47,11 +42,11 @@
 
 <script>
 import {mapMutations} from 'vuex'
-import {imgBaseUrl} from 'src/config/env'
+// import {imgBaseUrl} from 'src/config/env'
 import headTop from 'src/components/header/head'
 import footGuide from 'src/components/footer/footGuide'
 import shopList from 'src/components/common/shoplist'
-import {msiteAdress, msiteFoodTypes, msiteShopList} from 'src/service/getData'
+import {msiteAdress, msiteFoodTypes, cityGuess} from 'src/service/getData'
 import 'src/plugins/swiper.min.js'
 import 'src/style/swiper.min.css'
 
@@ -62,17 +57,21 @@ export default {
             msietTitle: '请选择地址...', // msiet页面头部标题
             foodTypes: [], // 食品分类列表
             hasGetData: false, //是否已经获取地理位置数据，成功之后再获取商铺列表信息
-            imgBaseUrl, //图片域名地址
+            imgBaseUrl: 'https://fuss10.elemecdn.com', //图片域名地址
         }
     },
     async beforeMount(){
-		this.geohash = this.$route.query.geohash || 'wtw3sm0q087';
+		if (!this.$route.query.geohash) {
+			const address = await cityGuess();
+			this.geohash = address.latitude + ',' + address.longitude;
+		}else{
+			this.geohash = this.$route.query.geohash
+		}
 		//保存geohash 到vuex
 		this.SAVE_GEOHASH(this.geohash);
     	//获取位置信息
     	let res = await msiteAdress(this.geohash);
     	this.msietTitle = res.name;
-
     	// 记录当前经度纬度
     	this.RECORD_ADDRESS(res);
 
@@ -82,7 +81,7 @@ export default {
         //获取导航食品类型列表
        	msiteFoodTypes(this.geohash).then(res => {
        		let resLength = res.length;
-       		let resArr = res.concat([]); // 返回一个新的数组
+       		let resArr = [...res]; // 返回一个新的数组
        		let foodArr = [];
     		for (let i = 0, j = 0; i < resLength; i += 8, j++) {
     			foodArr[j] = resArr.splice(0, 8);
@@ -129,7 +128,7 @@ export default {
     @import 'src/style/mixin';
 	.link_search{
 		left: .8rem;
-		@include wh(.8rem, .9rem);
+		@include wh(.9rem, .9rem);
 		@include ct;
 	}
 	.msite_title{
@@ -148,12 +147,16 @@ export default {
 		padding-top: 2.1rem;
 		background-color: #fff;
 		border-bottom: 0.025rem solid $bc;
+		height: 10.6rem;
 		.swiper-container{
 			@include wh(100%, auto);
 			padding-bottom: 0.6rem;
 			.swiper-pagination{
 				bottom: 0.2rem;
 			}
+		}
+		.fl_back{
+			@include wh(100%, 100%);
 		}
 	}
 	.food_types_container{

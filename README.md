@@ -15,14 +15,20 @@
 __注：此项目纯属个人瞎搞，正常下单请选择饿了么官方客户端。__
 
 
-
-
 ## 技术栈
+
 vue2 + vuex + vue-router + webpack + ES6/7 + fetch + sass + flex + svg
 
 
+## 关于 数据接口 的说明🤔
 
-# 项目运行
+### 2017-05-30
+
+由于一些原因，以前的数据接口无法使用，导致项目无法正常运行。以后改用nodejs构建的[后台系统](https://github.com/bailicangdu/node-elm)接口，数据接口的格式保持了和官网的一致。并提供对应的[后台管理系统](https://github.com/bailicangdu/vue2-manage)
+
+
+
+## 项目运行
 
 #### 注意：由于涉及大量的 ES6/7 等新属性，nodejs 必须是 6.0 以上版本 ，node 7 是先行版，有可能会出问题，建议使用 node 6 稳定版
 
@@ -33,29 +39,14 @@ cd vue2-elm
 
 npm install
 
+npm run dev (访问线上后台系统)
+
+npm run local (访问本地后台系统，需运行node-elm后台系统)
+
 ```
-
-### 编译环境
-```
-npm run dev
-
-访问 http://localhost:8088
-```
-
-
-### 线上版本
-```
-npm run build
-
-生成的elm文件夹放在服务器即可正常访问
-```
-
-
 
 
 # 说明
-
->  本项目主要用于熟悉如何用 vue2 架构一个大型项目
 
 >  如果对您有帮助，您可以点右上角 "Star" 支持一下 谢谢！ ^_^
 
@@ -63,7 +54,7 @@ npm run build
 
 >  开发环境 macOS 10.12.3  Chrome 56  nodejs 6.10.0
 
->  特别感谢辰妹子，在百忙之中抽出时间和我一起完成了这个项目，辛苦了🌹
+>  特别感谢辰妹子[@bailichen](https://github.com/bailichen)，在百忙之中抽出时间和我一起完成了这个项目，辛苦了🌹
 
 >  如有问题请直接在 Issues 中提，或者您发现问题并有非常好的解决方案，欢迎 PR 👍
 
@@ -72,25 +63,13 @@ npm run build
 >  另外一个 vue2 + vuex 的入门项目，比当前的项目简单很多，非常适合入门练习。[地址在这里](https://github.com/bailicangdu/vue2-happyfri)
 
 
+# 效果演示
 
-# 关于 demo 与 数据 的说明🤔
-
-1、下载代码运行后，因为开启了反向代理，可以获取真实的官方数据，最终可以进行下单(真实的下单，而不是模拟，下单后可以在官方App中查看并付款，亲自试过，且成功付款点餐)，但是为了安全起见，登录的帐号为固定的帐号，以免泄露个人信息，不过照样可以点餐。
-
-2、demo的数据为模拟的固定数据，只做为效果演示，因为反向代理必须在PC端运行代码才行。
-
-
-## 效果演示
-
-#### (demo使用的是模拟数据，数据是固定的，只做为样式的演示，要获取真实的数据，请clone代码并运行);
-
-[查看demo请戳这里](http://test.fe.ptdev.cn/elm/)（请用chrome手机模式预览）
+[查看demo请戳这里](http://cangdu.org:8001/)（请用chrome手机模式预览）
 
 ### 移动端扫描下方二维码
 
-![](https://github.com/bailicangdu/vue2-elm/blob/master/screenshots/elm_ewm.png)
-
-
+![](https://github.com/bailicangdu/vue2-elm/blob/master/screenshots/ewm.png)
 
 
 
@@ -144,7 +123,7 @@ npm run build
 
 2、利用 react-native 写出跨 Android 和 IOS 的原生APP版本。[地址在这里](https://github.com/bailicangdu/React-Native-elm)
 
-3、如果时间来的及，会出一个pc端的网页版。
+3、如果时间来的及，会出一卖家版本。
 
 所以我的目的是构建一个横跨前后端，移动IOS、Android的完整生态圈。
 
@@ -327,3 +306,8 @@ npm run build
 
 56 directories, 203 files
 ```
+
+
+# License
+
+[GPL](https://github.com/bailicangdu/vue2-elm/blob/master/COPYING)

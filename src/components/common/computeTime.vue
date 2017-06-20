@@ -44,7 +44,7 @@
             },
             gotoPay(){
                 this.showAlert = true;
-                this.alertText = '请前往 官方饿了么APP 支付';
+                this.alertText = '暂不开放支付接口';
             }
         },
         computed: {
@@ -62,7 +62,7 @@
             },
             //订单返回时间秒分分别处理
             numTime: function (){
-                if (this.time.indexOf('分钟') !== -1) {
+                if (this.time.toString().indexOf('分钟') !== -1) {
                     return parseInt(this.time)*60;
                 }else{
                     return parseInt(this.time);

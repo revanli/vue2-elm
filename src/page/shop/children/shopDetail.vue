@@ -43,7 +43,7 @@
                     </p>
                     <p>
                         <span>检查日期：</span>
-                        <span>{{shopDetail.identification.identificate_date.split('T')[0]}}</span>
+                        <span>{{shopDetail.identification.identificate_date && shopDetail.identification.identificate_date.split('T')[0]}}</span>
                     </p>
                 </div>
             </section>
@@ -67,7 +67,7 @@
         </section>
         <transition name="fade">
             <section class="license_container" v-if="showlicenseImg" @click="showlicenseImg = false">
-                <img :src="getImgPath(licenseImg)">
+                <img :src="imgBaseUrl + licenseImg">
             </section>
         </transition>
         <transition name="router-slid" mode="out-in">
@@ -80,12 +80,14 @@
 	import headTop from 'src/components/header/head'
     import {mapState} from 'vuex'
     import {getImgPath} from 'src/components/common/mixin'
+    import {imgBaseUrl} from 'src/config/env'
 
     export default {
     	data(){
             return{
                licenseImg: null,
                showlicenseImg: false,
+               imgBaseUrl
             }
         },
         mounted(){

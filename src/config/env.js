@@ -6,20 +6,21 @@
  * imgBaseUrl: 图片所在域名地址
  * 
  */
-let baseUrl; 
-let routerMode;
-const imgBaseUrl = 'https://fuss10.elemecdn.com';
+
+let baseUrl = ''; 
+let routerMode = 'history';
+let imgBaseUrl = 'http://images.cangdu.org/';
+
 
 if (process.env.NODE_ENV == 'development') {
-	baseUrl = '';
-	routerMode = 'hash'
-}else{
-	baseUrl = 'https://mainsite-restapi.ele.me';
-	routerMode = 'hash'
+
+}else if(process.env.NODE_ENV == 'production'){
+
+	// baseUrl = 'http://cangdu.org:8001';
 }
 
 export {
 	baseUrl,
 	routerMode,
-	imgBaseUrl
+	imgBaseUrl,
 }

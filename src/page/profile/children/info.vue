@@ -6,7 +6,7 @@
                 <input type="file" class="profileinfopanel-upload" @change="uploadAvatar">
                 <h2>头像</h2>
                 <div class="headportrait-div">
-                    <img :src="imgPath" class="headportrait-div-top" v-if="avatar">
+                    <img  v-if="userInfo" :src="imgBaseUrl + userInfo.avatar" class="headportrait-div-top">
                     <span class="headportrait-div-top" v-else>
                         <svg>
                             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#avatar-default"></use>
@@ -105,8 +105,11 @@
 <script>
     import {mapMutations, mapState} from 'vuex'
     import headTop from 'src/components/header/head'
+    import {signout} from 'src/service/getData'
     import alertTip from 'src/components/common/alertTip'
     import {getImgPath} from 'src/components/common/mixin'
+    import {imgBaseUrl} from 'src/config/env'
+    import {removeStore} from 'src/config/mUtils'
 
     export default {
         data(){
@@ -120,6 +123,7 @@
                 isLeave:false, //是否退出
                 showAlert: false,
                 alertText: null,
+                imgBaseUrl,
             }
         },
         beforeDestroy(){
@@ -131,7 +135,7 @@
         },
         mixins: [getImgPath],
         computed:{
-             ...mapState([
+            ...mapState([
                 'userInfo', 'imgPath'
             ]),
         },
@@ -156,10 +160,12 @@
                 },200)
             },
             //退出登录
-            outLogin(){
+            async outLogin(){
                 this.OUT_LOGIN();
                 this.waitingThing();
                 this.$router.go(-1);
+                removeStore('user_id')
+                await signout();
             },
             changePhone(){
                 this.showAlert = true;
@@ -178,7 +184,9 @@
                               body: data
                             })
                         let res = await response.json();
-                        this.SAVE_AVANDER(this.getImgPath(res));
+                        if (res.status == 1) {
+                            this.userInfo.avatar = res.image_path;
+                        }
                     }catch (error) {
                         this.showAlert = true;
                         this.alertText = '上传失败';

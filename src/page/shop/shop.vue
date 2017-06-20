@@ -1,12 +1,17 @@
  <template>
     <div>
         <section v-if="!showLoading" class="shop_container">
+            <nav class="goback" @click="goback">
+                <svg width="4rem" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1">
+                    <polyline points="12,18 4,9 12,0" style="fill:none;stroke:rgb(255,255,255);stroke-width:3"/>
+                </svg>
+            </nav>
             <header class="shop_detail_header" ref="shopheader" :style="{zIndex: showActivities? '14':'10'}">
-                <img :src="getImgPath(shopDetailData.image_path)" class="header_cover_img">
+                <img :src="imgBaseUrl + shopDetailData.image_path" class="header_cover_img">
                 <section class="description_header">
                     <router-link to="/shop/shopDetail" class="description_top">
                         <section class="description_left">
-                            <img :src="getImgPath(shopDetailData.image_path)">
+                            <img :src="imgBaseUrl + shopDetailData.image_path">
                         </section>
                         <section class="description_right">
                             <h4 class="description_title ellipsis">{{shopDetailData.name}}</h4>
@@ -27,7 +32,7 @@
                             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#arrow-left"></use>
                         </svg>
                     </footer>
-                    
+
                 </section>
             </header>
             <transition name="fade">
@@ -55,19 +60,19 @@
                         <line x1="22" y1="22" x2="38" y2="38" style="stroke:#999;stroke-width:2"/>
                     </svg>
                 </section>
-            </transition>  
+            </transition>
             <section class="change_show_type" ref="chooseType">
                 <div>
                     <span :class='{activity_show: changeShowType =="food"}' @click="changeShowType='food'">商品</span>
                 </div>
                 <div>
-                    <span :class='{activity_show: changeShowType =="rating"}' @click="changeShowType='rating'">评价</span>   
+                    <span :class='{activity_show: changeShowType =="rating"}' @click="changeShowType='rating'">评价</span>
                 </div>
             </section>
             <transition name="fade-choose">
                 <section v-show="changeShowType =='food'" class="food_container">
                     <section class="menu_container">
-                        <section class="menu_left" id="wrapper_menu">
+                        <section class="menu_left" id="wrapper_menu" ref="wrapperMenu">
                             <ul>
                                 <li v-for="(item,index) in menuList" :key="index" class="menu_left_li" :class="{activity_menu: index == menuIndex}" @click="chooseMenu(index)">
                                     <img :src="getImgPath(item.icon_url)" v-if="item.icon_url">
@@ -93,7 +98,7 @@
                                     <section v-for="(foods,foodindex) in item.foods" :key="foodindex" class="menu_detail_list">
                                         <router-link  :to="{path: 'shop/foodDetail', query:{image_path:foods.image_path, description: foods.description, month_sales: foods.month_sales, name: foods.name, rating: foods.rating, rating_count: foods.rating_count, satisfy_rate: foods.satisfy_rate, foods, shopId}}" tag="div" class="menu_detail_link">
                                             <section class="menu_food_img">
-                                                <img :src="getImgPath(foods.image_path)">
+                                                <img :src="imgBaseUrl + foods.image_path">
                                             </section>
                                             <section class="menu_food_description">
                                                 <h3 class="food_description_head">
@@ -103,7 +108,7 @@
                                                         <p :style="{color: attribute.icon_name == '新'? '#fff' : '#' + attribute.icon_color}">{{attribute.icon_name == '新'? '新品':attribute.icon_name}}</p>
                                                         </li>
                                                     </ul>
-                                                    
+
                                                 </h3>
                                                 <p class="food_description_content">{{foods.description}}</p>
                                                 <p class="food_description_sale_rating">
@@ -195,7 +200,7 @@
                 <section class="rating_container" id="ratingContainer" v-show="changeShowType =='rating'">
                     <section v-load-more="loaderMoreRating" type="2">
                         <section>
-                            
+
                             <header class="rating_header">
                                 <section class="rating_header_left">
                                     <p>{{shopDetailData.rating}}</p>
@@ -215,7 +220,7 @@
                                     </p>
                                     <p>
                                         <span>送达时间</span>
-                                        <span class="delivery_time">{{shopDetailData.order_lead_time}}分钟</span>   
+                                        <span class="delivery_time">{{shopDetailData.order_lead_time}}分钟</span>
                                     </p>
                                 </section>
                             </header>
@@ -248,7 +253,7 @@
                                         </ul>
                                     </section>
                                 </li>
-                            </ul>            
+                            </ul>
                         </section>
                     </section>
                 </section>
@@ -288,7 +293,7 @@
         <transition name="fade">
             <p class="show_delete_tip" v-if="showDeleteTip">多规格商品只能去购物车删除哦</p>
         </transition>
-        <transition 
+        <transition
         appear
         @after-appear = 'afterEnter'
         @before-appear="beforeEnter"
@@ -301,6 +306,9 @@
             </span>
         </transition>
        <loading v-show="showLoading || loadRatings"></loading>
+       <section class="animation_opactiy shop_back_svg_container" v-if="showLoading">
+           <img src="../../images/shop_back_svg.svg">
+       </section>
        <transition name="router-slid" mode="out-in">
             <router-view></router-view>
         </transition>
@@ -314,6 +322,7 @@
     import buyCart from 'src/components/common/buyCart'
     import ratingStar from 'src/components/common/ratingStar'
     import {loadMore, getImgPath} from 'src/components/common/mixin'
+    import {imgBaseUrl} from 'src/config/env'
     import BScroll from 'better-scroll'
 
     export default {
@@ -354,6 +363,7 @@
                 elBottom: 0, //当前点击加按钮在网页中的绝对left值
                 ratingScroll: null, //评论页Scroll
                 wrapperMenu: null,
+                imgBaseUrl,
             }
         },
         created(){
@@ -365,6 +375,9 @@
             this.initData();
             this.windowHeight = window.innerHeight;
         },
+        beforeDestroy(){
+            // this.foodScroll.removeEventListener('scroll', )
+        },
         mixins: [loadMore, getImgPath],
         components: {
             loading,
@@ -375,11 +388,11 @@
             ...mapState([
                 'latitude','longitude','cartList'
             ]),
-            promotionInfo: function (){ 
+            promotionInfo: function (){
                 return this.shopDetailData.promotion_info || '欢迎光临，用餐高峰期请提前下单，谢谢。'
             },
             //配送费
-            deliveryFee: function () { 
+            deliveryFee: function () {
                 if (this.shopDetailData) {
                     return this.shopDetailData.float_delivery_fee;
                 }else{
@@ -387,7 +400,7 @@
                 }
             },
             //还差多少元起送，为负数时显示去结算按钮
-            minimumOrderAmount: function () { 
+            minimumOrderAmount: function () {
                 if (this.shopDetailData) {
                     return this.shopDetailData.float_minimum_order_amount - this.totalPrice;
                 }else{
@@ -424,7 +437,7 @@
                 //获取商铺食品列表
                 this.menuList = await foodMenu(this.shopId);
                 //评论列表
-                this.ratingList = await getRatingList(this.ratingOffset);
+                this.ratingList = await getRatingList(this.shopId, this.ratingOffset);
                 //商铺评论详情
                 this.ratingScoresData = await ratingScores(this.shopId);
                 //评论Tag列表
@@ -448,24 +461,31 @@
             listenScroll(element){
                 let oldScrollTop;
                 let requestFram;
-                this.foodScroll = new BScroll(element, {  
+                this.foodScroll = new BScroll(element, {
                     probeType: 3,
                     deceleration: 0.001,
                     bounce: false,
                     swipeTime: 2000,
                     click: true,
-                }); 
-           
+                });
+
                 this.wrapperMenu = new BScroll('#wrapper_menu', {
                     click: true,
                 });
 
                 this.foodScroll.on('scroll', (pos) => {
+                    if (!this.$refs.wrapperMenu) {
+                        return 
+                    }
                     this.shopListTop.forEach((item, index) => {
                         if (this.menuIndexChange && Math.abs(Math.round(pos.y)) >= item) {
                             this.menuIndex = index;
                         }
                     })
+                    let wrapMenuHeight = this.$refs.wrapperMenu.clientHeight;
+                    let menuList=this.$refs.wrapperMenu.querySelectorAll('.activity_menu');
+                    let el = menuList[0];
+                    this.wrapperMenu.scrollToElement(el, 800);
                 })
             },
             //控制活动详情页的显示隐藏
@@ -503,7 +523,7 @@
             initCategoryNum(){
                 let newArr = [];
                 let cartFoodNum = 0;
-                this.totalPrice = 0; 
+                this.totalPrice = 0;
                 this.cartFoodList = [];
                 this.menuList.forEach((item, index) => {
                     if (this.shopCart&&this.shopCart[item.foods[0].category_id]) {
@@ -562,7 +582,7 @@
                 this.ratingTageIndex = index;
                 this.ratingOffset = 0;
                 this.ratingTagName = name;
-                let res = await getRatingList(this.ratingOffset, name);
+                let res = await getRatingList(this.shopId, this.ratingOffset, name);
                 this.ratingList = [...res];
                 this.$nextTick(() => {
                     this.ratingScroll.refresh();
@@ -576,7 +596,7 @@
                 this.loadRatings = true;
                 this.preventRepeatRequest = true;
                 this.ratingOffset += 10;
-                let ratingDate = await getRatingList(this.ratingOffset, this.ratingTagName);
+                let ratingDate = await getRatingList(this.shopId, this.ratingOffset, this.ratingTagName);
                 this.ratingList = [...this.ratingList,...ratingDate];
                 this.loadRatings = false;
                 if (ratingDate.length >= 10) {
@@ -585,15 +605,7 @@
             },
             //隐藏动画
             hideLoading(){
-                if (process.env.NODE_ENV !== 'development') {
-                    clearTimeout(this.timer);
-                    this.timer = setTimeout(() => {
-                        clearTimeout(this.timer);
-                        this.showLoading = false;
-                    }, 600)
-                }else{
-                    this.showLoading = false;
-                }
+                this.showLoading = false;
             },
             //显示规格列表
             showChooseList(foods){
@@ -646,6 +658,9 @@
                     this.listenInCart();
                 })
             },
+            goback(){
+                this.$router.go(-1);
+            }
         },
         watch: {
             //showLoading变化时说明组件已经获取初始化数据，在下一帧nextTick进行后续操作
@@ -720,6 +735,13 @@
        75%  { transform: scale(.9) }
        100% { transform: scale(1) }
     }
+    .shop_back_svg_container{
+        position: fixed;
+        @include wh(100%, 100%);
+        img{
+            @include wh(100%, 100%);
+        }
+    }
     .shop_container{
         display: flex;
         flex-direction: column;
@@ -728,7 +750,16 @@
         left: 0;
         height: 100%;
     }
-    
+    .goback{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2rem;
+        z-index: 11;
+        padding-top: 0.2rem;
+        padding-left: 0.2rem;
+    }
     .shop_detail_header{
         overflow: hidden;
         position: relative;
@@ -868,7 +899,7 @@
             @include cl;
         }
     }
-            
+
     .food_container{
         display: flex;
         flex: 1;
@@ -878,8 +909,8 @@
         display: flex;
         flex: 1;
         overflow-y: hidden;
+        position: relative;
         .menu_left{
-            background-color: #f8f8f8;
             width: 3.8rem;
             .menu_left_li{
                 padding: .7rem .3rem;
@@ -979,7 +1010,7 @@
                 padding: .6rem .4rem;
                 border-bottom: 1px solid #f8f8f8;
                 position: relative;
-                overflow: hidden;            
+                overflow: hidden;
                 .menu_detail_link{
                     display:flex;
                     .menu_food_img{
@@ -1010,7 +1041,6 @@
                                     transform: scale(.8);
                                     p{
                                         white-space: nowrap;
-                                        line-height: .4rem;
                                     }
                                 }
                                 .attribute_new{
@@ -1139,7 +1169,7 @@
                     margin-bottom: .1rem;
                 }
                 div:nth-of-type(2){
-                    font-size: .4rem;   
+                    font-size: .4rem;
                 }
             }
         }
@@ -1452,6 +1482,7 @@
                     border: 0.025rem solid #ddd;
                     border-radius: .2rem;
                     margin-right: .5rem;
+                    margin-bottom: .2rem;
                 }
                 .specs_activity{
                     border-color: #3199e8;
@@ -1509,7 +1540,7 @@
         position: fixed;
         bottom: 30px;
         left: 30px;
-    
+
         svg{
             @include wh(.9rem, .9rem);
             fill: #3190e8;

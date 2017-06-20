@@ -3,8 +3,8 @@
         <head-top go-back='true' :head-title="profiletitle"></head-top>
         <section>
             <section class="profile-number">
-                <router-link :to="userInfo? '/profile/info' : '/login'" class="profile-link">
-                    <img :src="imgpath" class="privateImage" v-if="this.avatar">
+                <router-link :to="userInfo&&userInfo.user_id? '/profile/info' : '/login'" class="profile-link">
+                    <img :src="imgBaseUrl + userInfo.avatar" class="privateImage" v-if="userInfo&&userInfo.user_id">
                     <span class="privateImage" v-else>
                         <svg class="privateImage-svg">
                             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#avatar-default"></use>
@@ -147,10 +147,9 @@ export default {
     data(){
         return{
             profiletitle: '我的',
-            getUserinfo: {},        //得到数据
             username: '登录/注册',           //用户名
             resetname: '',
-            mobile: '登录后享受更多特权',             //电话号码
+            mobile: '暂无绑定手机号',             //电话号码
             balance: 0,            //我的余额
             count : 0,             //优惠券个数
             pointNumber : 0,       //积分数
@@ -159,7 +158,7 @@ export default {
         }
     },
     mounted(){
-
+        this.initData();
     },
     mixins: [getImgPath],
     components:{
@@ -188,16 +187,23 @@ export default {
         ...mapMutations([
             'SAVE_AVANDER'
         ]),
+        initData(){
+            if (this.userInfo && this.userInfo.user_id) {
+                this.avatar = this.userInfo.avatar;
+                this.username = this.userInfo.username;
+                this.mobile = this.userInfo.mobile || '暂无绑定手机号';
+                this.balance = this.userInfo.balance;
+                this.count = this.userInfo.gift_amount;
+                this.pointNumber = this.userInfo.point;
+            }else{
+                this.username = '登录/注册';
+                this.mobile = '暂无绑定手机号';
+            }
+        },
     },
     watch: {
         userInfo: function (value){
-            this.getUserinfo = value || {};
-            this.avatar = this.getUserinfo&&this.getUserinfo.avatar || '';
-            this.username = this.getUserinfo&&this.getUserinfo.username ||'登录/注册';
-            this.mobile = this.getUserinfo&&this.getUserinfo.mobile ||'登录后享受更多特权';
-            this.balance = this.getUserinfo&&this.getUserinfo.balance || '0';
-            this.count = this.getUserinfo&&this.getUserinfo.gift_amount || '0';
-            this.pointNumber = this.getUserinfo&&this.getUserinfo.point || '0';
+            this.initData()
         }
     }
 }

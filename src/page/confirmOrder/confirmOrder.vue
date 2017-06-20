@@ -27,7 +27,7 @@
             <section class="delivery_model container_style">
                 <p class="deliver_text">送达时间</p>
                 <section class="deliver_time">
-                    <p>尽快送达 | 预计{{checkoutData.delivery_reach_time}}</p>
+                    <p>尽快送达 | 预计 {{checkoutData.delivery_reach_time}}</p>
                     <p v-if="checkoutData.cart.is_deliver_by_fengniao">蜂鸟专送</p>
                 </section>
             </section>
@@ -47,11 +47,11 @@
                 </section>
             </section>
             <section class="food_list">
-                <header>
+                <header v-if="checkoutData.cart.restaurant_info">
                     <img :src="imgBaseUrl + checkoutData.cart.restaurant_info.image_path">
                     <span>{{checkoutData.cart.restaurant_info.name}}</span>
                 </header>
-                <ul class="food_list_ul">
+                <ul class="food_list_ul" v-if="checkoutData.cart.groups">
                     <li v-for="item in checkoutData.cart.groups[0]" :key="item.id" class="food_item_style">
                         <p class="food_name ellipsis">{{item.name}}</p>
                         <div class="num_price">
@@ -60,11 +60,18 @@
                         </div>
                     </li>
                 </ul>
-                <div class="food_item_style">
+                <div class="food_item_style" v-if="checkoutData.cart.extra">
                     <p class="food_name ellipsis">{{checkoutData.cart.extra[0].name}}</p>
                     <div class="num_price">
                         <span></span>
                         <span>¥ {{checkoutData.cart.extra[0].price}}</span>
+                    </div>
+                </div>
+                <div class="food_item_style">
+                    <p class="food_name ellipsis">配送费</p>
+                    <div class="num_price">
+                        <span></span>
+                        <span>¥ {{checkoutData.cart.deliver_amount || 0}}</span>
                     </div>
                 </div>
                 <div class="food_item_style total_price">
@@ -128,7 +135,7 @@
     import headTop from 'src/components/header/head'
     import alertTip from 'src/components/common/alertTip'
     import loading from 'src/components/common/loading'
-    import {checkout, getAddress, placeOrders} from 'src/service/getData'
+    import {checkout, getAddress, placeOrders, getAddressList} from 'src/service/getData'
     import {imgBaseUrl} from 'src/config/env'
 
     export default {
@@ -160,6 +167,10 @@
             if (this.geohash) {
                 this.initData();
                 this.SAVE_GEOHASH(this.geohash);
+            }
+            if (!(this.userInfo && this.userInfo.user_id)) {
+                this.showAlert = true;
+                this.alertText = '您还没有登录';
             }
         },
         components: {
@@ -213,16 +224,16 @@
                     })
                 })
                 //检验订单是否满足条件
-                this.checkoutData = await checkout(this.geohash, [newArr]);
+                this.checkoutData = await checkout(this.geohash, [newArr], this.shopId);
                 this.SAVE_CART_ID_SIG({cart_id: this.checkoutData.cart.id, sig:  this.checkoutData.sig})
                 this.initAddress();
                 this.showLoading = false;
             },
             //获取地址信息，第一个地址为默认选择地址
             async initAddress(){
-                if (!(this.userInfo && this.userInfo.user_id)) {
-                    let addressRes = await getAddress(this.checkoutData.cart.id, this.checkoutData.sig);
-                    if (addressRes instanceof Array) {
+                if (this.userInfo && this.userInfo.user_id) {
+                    const addressRes = await getAddressList(this.userInfo.user_id);
+                    if (addressRes instanceof Array && addressRes.length) {
                         this.CHOOSE_ADDRESS({address: addressRes[0], index: 0});
                     }
                 }

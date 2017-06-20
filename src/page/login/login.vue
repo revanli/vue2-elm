@@ -1,11 +1,11 @@
 <template>
     <div class="loginContainer">
         <head-top :head-title="loginWay? '登录':'密码登录'" goBack="true">
-            <div slot="changeLogin" class="change_login" @click="changeLoginWay">{{loginWay? "密码登录":"短信登录"}}</div>
+            <!-- <div slot="changeLogin" class="change_login" @click="changeLoginWay">{{loginWay? "密码登录":"短信登录"}}</div> -->
         </head-top>
         <form class="loginForm" v-if="loginWay">
             <section class="input_container phone_number">
-                <input type="text" placeholder="手机号" name="phone" maxlength="11" v-model="phoneNumber">
+                <input type="text" placeholder="账号密码随便输入" name="phone" maxlength="11" v-model="phoneNumber">
                 <button @click.prevent="getVerifyCode" :class="{right_phone_number:rightPhoneNumber}" v-show="!computedTime">获取验证码</button>
                 <button  @click.prevent v-show="computedTime">已发送({{computedTime}}s)</button>
             </section>
@@ -15,7 +15,7 @@
         </form>
         <form class="loginForm" v-else>
             <section class="input_container">
-                <input type="text" placeholder="手机号/邮箱/用户名" v-model.lazy="userAccount">
+                <input type="text" placeholder="账号" v-model.lazy="userAccount">
             </section>
             <section class="input_container">
                 <input v-if="!showPassword" type="password" placeholder="密码"  v-model="passWord">
@@ -38,11 +38,13 @@
             </section>
         </form>
         <p class="login_tips">
-            温馨提示：未注册饿了么账号的手机号，登录时将自动注册，且代表您已同意
-            <a href="https://h5.ele.me/service/agreement/">《用户服务协议》</a>
+            温馨提示：未注册过的账号，登录时将自动注册
+        </p>
+        <p class="login_tips">
+            注册过的用户可凭账号密码登录
         </p>
         <div class="login_container" @click="mobileLogin">登录</div>
-        <router-link to="/forget" class="to_forget" v-if="!loginWay">忘记密码？</router-link>
+        <router-link to="/forget" class="to_forget" v-if="!loginWay">重置密码？</router-link>
         <alert-tip v-if="showAlert" :showHide="showAlert" @closeTip="closeTip" :alertText="alertText"></alert-tip>
     </div>
 </template>
@@ -50,13 +52,14 @@
 <script>
     import headTop from '../../components/header/head'
     import alertTip from '../../components/common/alertTip'
+    import {localapi, proapi, imgBaseUrl} from 'src/config/env'
     import {mapState, mapMutations} from 'vuex'
     import {mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin} from '../../service/getData'
 
     export default {
         data(){
             return {
-                loginWay: true, //登录方式，默认短信登录
+                loginWay: false, //登录方式，默认短信登录
                 showPassword: false, // 是否显示密码
                 phoneNumber: null, //电话号码
                 mobileCode: null, //短信验证码
@@ -98,12 +101,8 @@
             },
             //获取验证吗，线上环境使用固定的图片，生产环境使用真实的验证码
             async getCaptchaCode(){
-                if (process.env.NODE_ENV !== 'development'){
-                    this.captchaCodeImg = 'http://test.fe.ptdev.cn/elm/yzm.jpg';
-                }else{
-                    let res = await getcaptchas();
-                    this.captchaCodeImg = 'https://mainsite-restapi.ele.me/v1/captchas/' + res.code;
-                }
+                let res = await getcaptchas();
+                this.captchaCodeImg = res.code;
             },
             //获取短信验证码
             async getVerifyCode(){
@@ -254,9 +253,9 @@
         }
     }
     .login_tips{
-        @include sc(.5rem, #999);
+        @include sc(.5rem, red);
         padding: .4rem .6rem;
-        line-height: .7rem;
+        line-height: .5rem;
         a{
             color: #3b95e9;
         }
@@ -269,29 +268,26 @@
         border: 1px;
         border-radius: 0.15rem;
         text-align: center;
-
     }
     .button_switch{
         background-color: #ccc;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        justify-content: center;
         @include wh(2rem, .7rem);
         padding: 0 .2rem;
         border: 1px;
         border-radius: 0.5rem;
         position: relative;
-        transition: all .3s;
         .circel_button{
             transition: all .3s;
             position: absolute;
+            top: -0.2rem;
             z-index: 1;
+            left: -0.3rem;
             @include wh(1.2rem, 1.2rem);
-            left: -.1rem;
             box-shadow: 0 0.026667rem 0.053333rem 0 rgba(0,0,0,.1);
             background-color: #f1f1f1;
             border-radius: 50%;
-
         }
         .trans_to_right{
             transform: translateX(1.3rem);

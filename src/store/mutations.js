@@ -30,10 +30,9 @@ import {
 	BUY_CART,
 } from './mutation-types.js'
 
-import {
-	setStore,
-	getStore,
-} from '../config/mUtils'
+import {setStore, getStore} from '../config/mUtils'
+
+import {localapi, proapi} from 'src/config/env'
 
 export default {
 	// 记录当前经度纬度
@@ -126,11 +125,7 @@ export default {
 	[RECORD_USERINFO](state, info) {
 		state.userInfo = info;
 		state.login = true;
-		let validity = 30;
-		let now = new Date();
-		now.setTime(now.getTime() + validity * 24 * 60 * 60 * 1000);
-		document.cookie = "USERID=" + info.user_id + ";expires=" + now.toGMTString();
-		document.cookie = "SID=huRyTRd9QLij7NkbpHJoj3PQrx1eRiO6bAiw" + ";expires=" + now.toGMTString();
+		setStore('user_id', info.user_id);
 	},
 	//获取用户信息存入vuex
 	[GET_USERINFO](state, info) {
@@ -142,11 +137,6 @@ export default {
 		}
 		if (!info.message) {
 			state.userInfo = {...info};
-			let validity = 30;
-			let now = new Date();
-			now.setTime(now.getTime() + validity * 24 * 60 * 60 * 1000);
-			document.cookie = "USERID=" + info.user_id + ";expires=" + now.toGMTString();
-			document.cookie = "SID=huRyTRd9QLij7NkbpHJoj3PQrx1eRiO6bAiw" + ";expires=" + now.toGMTString();
 		} else {
 			state.userInfo = null;
 		}
@@ -178,7 +168,7 @@ export default {
 	//保存geohash
 	[SAVE_GEOHASH](state, geohash) {
 		state.geohash = geohash;
-		if (true) {}
+		
 	},
 	//确认订单页添加新的的地址
 	[CONFIRM_ADDRESS](state, newAddress) {
@@ -223,7 +213,7 @@ export default {
 	},
 	//退出登录
 	[OUT_LOGIN](state) {
-		state.userInfo = null;
+		state.userInfo = {};
 		state.login = false;
 	},
 	//保存图片
